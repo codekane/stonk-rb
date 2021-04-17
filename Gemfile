@@ -5,6 +5,7 @@ source "https://rubygems.org"
 gem 'redd'
 gem 'pry'
 gem 'rake'
+gem 'rspec'
 
 gem 'activerecord'
 gem 'standalone_migrations'

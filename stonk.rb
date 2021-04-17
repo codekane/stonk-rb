@@ -1,5 +1,6 @@
 require 'active_record'
 require './models/stonk.rb'
+require './models/search.rb'
 require './lib/reddss.rb'
 
 def db_configuration
@@ -9,10 +10,10 @@ end
 
 ActiveRecord::Base.establish_connection(db_configuration["development"])
 
-stock = Stonk.new(symbol: "PENIS");
-stock.save
-
 search = ReddSS.new.rising
+
+# Populates the Stonk table with all the correct symbols, if they are not
+# already there.
 
 search.keys.each do |stock|
   if Stonk.where(symbol: stock).empty? === true
@@ -23,8 +24,11 @@ search.keys.each do |stock|
   end
 end
 
-# What I am receiving is a hash of objects.
-# At this stage, I want to iterate over each of the objects, and check to see if
-# their key exists as a row in the Stonks table.
-# If it does not I want to create it and move on.
-# If it does I want to move on.
+# Next I'm going to want to store the data from this search.
+# A search will have an ID, a date, and be related to the stonk tables.
+# I think this is a has_many relationship. 
+#
+# Note that as a part of this script, I want to check that the stonks and counts
+# are different than the last time it ran. If it's not, I'll build the object,
+# bu then not save. This will give me a really quick way to check how the data
+# changes, without having to sift through enormous database tables.
