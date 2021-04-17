@@ -10,22 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_004634) do
+ActiveRecord::Schema.define(version: 2021_04_17_195728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "scrapes", force: :cascade do |t|
-    t.datetime "date"
-  end
-
-  create_table "scrapes_stonks", id: false, force: :cascade do |t|
-    t.bigint "scrape_id", null: false
-    t.bigint "stonk_id", null: false
-  end
-
   create_table "stonks", force: :cascade do |t|
-    t.string "symbol", null: false
+    t.string "symbol"
   end
 
 end
