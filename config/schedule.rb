@@ -5,9 +5,12 @@
 
 # Example:
 #
-# set :output, "/path/to/my/cron_log.log"
+job_type :asdf_rake, %Q{. $HOME/.asdf/asdf.sh; . $HOME/.asdf/completions/asdf.bash;\
+                        cd :path && direnv exec . rake :task --silent :output}
+
+set :output, "/Users/Scald/Projects/stonk/log.md"
 every 1.hour do
-  rake "stonk:handle"
+  asdf_rake "stonk:handle"
 end
 #
 # every 2.hours do
