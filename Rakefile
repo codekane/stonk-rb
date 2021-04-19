@@ -8,7 +8,7 @@ namespace :stonk do
   end
   def parse_stonks
     puts "Gonna check Reddit for more stonks. Gimme a minute."
-    search = ReddSS.new.rising
+    search = RedditSearch.new('wallstbets').run_search
     puts "Got 'em. Hold up, Hold up...."
     handler = SearchHandler.new(search)
     handler.populateStonks
