@@ -4,9 +4,16 @@ require './stonk.rb'
 
 namespace :stonk do
   task :handle do
-    search = SearchHandler.new
-    search.populateStonks
-    search.new_search
+    parse_stonks
+  end
+  def parse_stonks
+    puts "Gonna check Reddit for more stonks. Gimme a minute."
+    search = ReddSS.new.rising
+    puts "Got 'em. Hold up, Hold up...."
+    handler = SearchHandler.new(search)
+    handler.populateStonks
+    handler.populateSearch
     puts "Search has been handled man. No problemo."
   end
+
 end

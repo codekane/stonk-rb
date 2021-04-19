@@ -31,6 +31,7 @@ GEM
     http_parser.rb (0.6.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
+    json (2.5.1)
     method_source (1.0.0)
     minitest (5.14.4)
     pg (1.2.3)
@@ -71,6 +72,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  json
   pg
   pry
   rake
