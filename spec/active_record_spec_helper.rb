@@ -1,6 +1,6 @@
 require 'active_record'
 
-connection_info = YAML.load_file("config/database.yml")["test"]
+connection_info = YAML.load_file("config/database.yml")[ENV['RACK_ENV']]
 ActiveRecord::Base.establish_connection(connection_info)
 
 RSpec.configure do |config|

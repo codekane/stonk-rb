@@ -1,12 +1,24 @@
 require 'active_record'
 require 'sinatra/base'
-require 'database'
+require './lib/database.rb'
+require './models/stonk.rb'
+require 'json'
 
-#Alright. All of the present functionality that I've written is isolated in its
-#own file, which provides a global method to the rakefile, which is then called
-#to make things happen. It's out of here. It's out of sight. It's out of mind.
-#Now I can move forward.
 
-class StonkAPI < Sinatra::Base
+class APIController < Sinatra::Base
 
+  get '/api/stonks' do
+    content_type 'application/json'
+
+    return Stonk.all.pluck(:symbol).to_json
+    # Should respond 200
+    # Format should be JSON
+    # Response should match a query of Stock.all.symbol:=
+    # Should return the symbols for Stock.all in JSON format.
+
+  end
+
+  get 'stonk_data' do
+
+  end
 end
