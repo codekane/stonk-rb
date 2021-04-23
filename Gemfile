@@ -17,6 +17,7 @@ gem 'whenever', require: false
 gem 'json'
 
 gem 'sinatra'
+gem 'redis'
 
 
 # git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
