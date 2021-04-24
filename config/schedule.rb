@@ -12,6 +12,10 @@ set :output, "/Users/Scald/Projects/stonk/log.md"
 every 1.hour do
   asdf_rake "stonk:handle"
 end
+
+every 5.minutes do
+  asdf_rake "stonk:get_data"
+end
 #
 # every 2.hours do
 #   command "/usr/bin/some_great_command"

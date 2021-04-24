@@ -2,6 +2,7 @@ class Stonk < ActiveRecord::Base
   validates :symbol, presence: true, uniqueness: true
   has_many :search_stonks
   has_many :searches, through: :search_stonks
+
 end
 
 class SearchStonk < ActiveRecord::Base
