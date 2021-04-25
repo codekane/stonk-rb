@@ -83,9 +83,6 @@ class StonkCounter
 
 end
 
-require 'active_record'
-require './models/stonk.rb'
-require 'database'
 
 class SearchHandler
   def initialize(search)

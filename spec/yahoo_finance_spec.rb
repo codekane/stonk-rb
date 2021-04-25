@@ -1,6 +1,22 @@
-require '../stonk.rb'
+#require '../stonk.rb'
+
+describe YF::Cache do
+  describe "initialization" do
+    it "needs to be initialized with a "
+  end
+
+
+
+
+  describe "read" do
+    
+
+  end
+
+end
 
 describe YF do
+
 
   describe ".clean_arguments" do
     it "passes a string through unchanged" do

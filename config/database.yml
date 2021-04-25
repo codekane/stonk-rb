@@ -12,4 +12,3 @@ test: &test
   <<: *default
   database: stonk_test
 
-production:

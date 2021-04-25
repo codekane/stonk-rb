@@ -1,6 +1,4 @@
-require 'active_record_spec_helper'
-require './models/stonk.rb'
-
+require 'spec_helper'
 # {:SMOON=>4, :GME=>24, :RGBP=>16, :BIDU=>8, :EYES=>8, :FBRX=>8, :ROOT=>8,
 # :OTRK=>8, :HJLI=>8, :PUBM=>8, :ASO=>8, :GOGO=>8, :BLNK=>8}
 

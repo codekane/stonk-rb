@@ -1,21 +1,19 @@
-require 'active_record'
-require 'sinatra/base'
-require './lib/database.rb'
-require './models/stonk.rb'
-require 'json'
-require 'redis'
-
-REDIS = Redis.new
-
+require './config/environment.rb'
+#require 'pry'
 
 module YF
+
+  class Cache
+    
+
+  end
 
   def self.api_feed
     stonks = []
     get_stonks.each do |stonk|
       stonks << read_stonk_cache(stonk)
     end
-    response = {"stonks": stonks}
+    response = stonks
     return response
   end
 
@@ -24,10 +22,16 @@ module YF
     return Search.last.stonks.pluck(:symbol)
   end
 
+  def self.read_stonk_cache(stonk)
+    JSON.parse(REDIS.get(stonk))
+  end
+
+  ########
+
   def self.get_stonk_data(arg)
     arg = clean_arguments(arg)
     output = `python lib/stonk_data.py #{arg}`
-    return JSON.parse(output)
+    return JSON.parse(output).to_json
   end
 
   def self.update_stonk_cache
@@ -37,9 +41,6 @@ module YF
     end
   end
 
-  def self.read_stonk_cache(stonk)
-    REDIS.get(stonk)
-  end
 
   def self.clean_arguments(arg)
     if arg.class == String
@@ -70,10 +71,27 @@ end
 
 
 class APIController < Sinatra::Base
+  register Sinatra::ActiveRecordExtension
+  before do
+    response.headers['Access-Control-Allow-Origin'] = '*'
+  end
 
   get '/api/stonks' do
     content_type 'application/json'
     return YF.api_feed.to_json
+  end
+
+
+
+  options "*" do
+    response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    200
+  end
+
+  options '/api/stonks' do
+
   end
 
 end

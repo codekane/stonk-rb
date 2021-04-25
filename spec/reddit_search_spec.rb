@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'reddit_search'
 
 #Skipped because this is long and ugly!

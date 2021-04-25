@@ -34,6 +34,8 @@ GEM
     json (2.5.1)
     method_source (1.0.0)
     minitest (5.14.4)
+    mock_redis (0.27.3)
+      ruby2_keywords
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     pg (1.2.3)
@@ -42,8 +44,12 @@ GEM
       method_source (~> 1.0)
     public_suffix (4.0.6)
     rack (2.2.3)
+    rack-cors (1.1.1)
+      rack (>= 2.0.0)
     rack-protection (2.1.0)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rake (13.0.3)
     redd (0.8.8)
       http (~> 2.2)
@@ -67,6 +73,9 @@ GEM
       rack (~> 2.2)
       rack-protection (= 2.1.0)
       tilt (~> 2.0)
+    sinatra-activerecord (2.0.22)
+      activerecord (>= 4.1)
+      sinatra (>= 1.0)
     standalone_migrations (1.0.13)
       activerecord (>= 3)
       rake
@@ -86,13 +95,18 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   json
+  mock_redis
   pg
   pry
+  rack
+  rack-cors
+  rack-test
   rake
   redd
   redis
   rspec
   sinatra
+  sinatra-activerecord
   standalone_migrations
   whenever
 
