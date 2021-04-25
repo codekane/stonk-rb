@@ -86,28 +86,32 @@ describe YF::API, '.request' do
   end
 end
 
-describe YF::Summary do
+describe YF::Cache do
+  before(:each) do
+    @cache = YF::Cache.new(:summary)
+  end
   describe ".set" do
     it "should return OK" do
-      test = YF::Summary.set("PENIS", "VAGINA")
+      test = @cache.set("PENIS", "VAGINA")
       expect(test).to eq("OK")
     end
 
     it "should prefix the save value with summary" do
-      YF::Summary.set("PENIS", "VAGINA")
+      @cache.set("PENIS", "VAGINA")
       expect(REDIS.get("summary:PENIS")).to eq("VAGINA")
     end
+
   end
 
   describe ".get" do
     it "should successfully return a value being set by the same class" do
-      YF::Summary.set("PENIS", "VAGINA")
-      expect(YF::Summary.get("PENIS")).to eq("VAGINA")
+      @cache.set("PENIS", "VAGINA")
+      expect(@cache.get("PENIS")).to eq("VAGINA")
     end
 
     it "should fail to return a value set with the base redis instance" do
       REDIS.set("PENIS", "VAGINA")
-      expect(YF::Summary.get("PENIS")).to be(nil)
+      expect(@cache.get("PENIS")).to be(nil)
     end
 
   end
@@ -120,6 +124,46 @@ describe YF::Summary do
     it "updates all keys with new results from the YF API"
 
   end
+end
+
+describe YF::Summary, 'Instance Methods' do
+  before(:each) do
+    @test = YF::Summary.new
+  end
+  describe 'instance methods' do
+    it 'should respond to namespace' do
+      expect(@test.namespace).to eq(:summary)
+    end
+    it "should respond to method" do
+      expect(@test.method).to eq(:summary_detail)
+    end
+    it "should contain a cache object" do
+      expect(@test.cache.class).to be(YF::Cache)
+    end
+    it "should contain an api object" do
+      expect(@test.api.class).to be(YF::API)
+    end
+  end
+end
+
+describe YF::Summary, 'Singleton Methods' do
+  before do
+    stonks = ["GME", "RGBP", "BIDU", "EYES", "FBRX", "ROOT", "OTRK", "HJLI", "PUBM", "ASO", "GOGO", "BLNK"]
+    stonks.each do |stonk| Stonk.create(symbol: stonk).save end
+    @stonks = Stonk.all
+    @test = YF::Summary
+  end
+
+
+  describe ".fetch_cache" do
+    it "accepts a string as the argument"
+    it "accepts an array as the argument"
+    it "accepts a symbol as the argument"
+    it "accepts an array as the argument"
+    it "accepts an ActiveRecord Collection as the argument"
+
+  end
+
 end
 
 describe YF do

@@ -2,7 +2,22 @@ require './config/environment.rb'
 require 'pry'
 
 module YF
+  module Helpers
+    def symbolize(arg)
+      if arg.class == String || arg.class == Symbol || arg.respond_to?(:symbol)
+        if arg.respond_to?(:symbol) then arg = arg.symbol end
+        return [arg]
+      elsif arg.class == Array || arg.respond_to?(:to_ary)
+        arg = arg.to_ary
+        arg = arg.flatten.select { |a| a.class == String || a.class == Symbol || a.respond_to?(:symbol) }
+        arg = arg.map { |a| if a.respond_to?(:symbol) then a = a.symbol else a end }
+        arg = arg.map { |a| if a.respond_to?(:to_sym) then a = a.to_sym else a end }
+      end
+    end
+  end
+
   class API
+    include YF::Helpers
     attr_accessor :method
     def initialize(method)
       @method = method
@@ -18,41 +33,81 @@ module YF
     # Handles Strings, Symbols, and Objects that respond to '.symbol', as well as Arrays containg these types
     # Returns a string properly formatted for delivering arguments to the python script that handles that actual API connection
     def prepare_arguments(arg)
-      if arg.class == String || arg.class == Symbol || arg.respond_to?(:symbol)
-        if arg.respond_to?(:symbol) then arg = arg.symbol end
-        return [@method, arg].join(" ")
-      elsif arg.class == Array
-        arg = arg.flatten.select { |a| a.class == String || a.class == Symbol || a.respond_to?(:symbol) }
-        arg = arg.map { |a| if a.respond_to?(:symbol) then a = a.symbol else a end }
+      if symbolize(arg)
+        arg = symbolize(arg)
         return arg.unshift(@method).join(" ")
+      end
+      # if arg.class == String || arg.class == Symbol || arg.respond_to?(:symbol)
+      #   if arg.respond_to?(:symbol) then arg = arg.symbol end
+      #   return [@method, arg].join(" ")
+      # elsif arg.class == Array
+      #   arg = arg.flatten.select { |a| a.class == String || a.class == Symbol || a.respond_to?(:symbol) }
+      #   arg = arg.map { |a| if a.respond_to?(:symbol) then a = a.symbol else a end }
+      #   return arg.unshift(@method).join(" ")
+      # end
+    end
+
+
+  end
+
+  # Only one who has the right keys for the API and Cache to get the Summary data
+  # Call this class anywhere you need Summary data get/set
+  class Summary
+    extend YF::Helpers
+    attr_accessor :cache, :api
+    def initialize
+      @cache = YF::Cache.new(namespace)
+      @api   = YF::API.new(method)
+    end
+    def namespace
+      :summary
+    end
+    def method
+      :summary_detail
+    end
+
+    # This cannot handle multiple arguments, which is bad, as it had really ought to.
+    # This needs to replenish the hash keys
+    # This needs to accept arrays, etc.
+    def self.fetch_cache(stonks)
+      summary = Summary.new
+      response = {}
+      response[summary.namespace] = {}
+      if symbolize(stonks)
+        stonks = symbolize(stonks)
+        stonks.each do |stonk|
+          data = JSON.parse(summary.cache.get(stonk))
+          response[summary.namespace][stonk] = data
+        end
+      end
+      return response
+    end
+
+    # Setter method is protected against multiple file types due to the protections I
+    # put in place on the API... There is no such protection in play for the others.
+    # Need to abstract that piece so it can be re-used
+    def self.update_cache(stonks)
+      summary = Summary.new
+      response = summary.api.request(stonks)["response"]
+      response.each do |r|
+        key = r.keys[0]
+        summary.cache.set(key, r[key])
       end
     end
 
   end
 
-  class Summary
-    attr_accessor :cache
-    def namespace
-      :summary
+  class Cache
+    def initialize(namespace)
+      @redis = Redis::Namespace.new(namespace, redis: REDIS)
     end
 
-    def method
-      :summary_detail
+    def get(symbol)
+      @redis.get(symbol)
     end
 
-    def initialize
-      @cache = Redis::Namespace.new(:summary, redis: REDIS)
-      @method = "summary_detail"
-    end
-
-    def self.get(symbol)
-      summary = YF::Summary.new
-      summary.cache.get(symbol)
-    end
-
-    def self.set(symbol, data)
-      summary = YF::Summary.new
-      summary.cache.set(symbol, data)
+    def set(symbol, data)
+      @redis.set(symbol, JSON.dump(data))
     end
   end
 
@@ -139,6 +194,12 @@ class APIController < Sinatra::Base
     return YF.api_feed.to_json
   end
 
+  get '/api/summary' do
+    content_type 'application/json'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    @stonks = Search.last.stonks
+    return YF::Summary.fetch_cache(@stonks).to_json
+  end
 
 
   options "*" do
