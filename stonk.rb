@@ -1,13 +1,65 @@
 require './config/environment.rb'
-#require 'pry'
+require 'pry'
 
 module YF
+  class API
+    attr_accessor :method
+    def initialize(method)
+      @method = method
+    end
 
-  class Cache
-    
+    # Receive a JSON Hash with "response" keyed to an array of results from the query
+    def request(args)
+      args = prepare_arguments(args)
+      response = `python lib/YF.py #{args}`
+      return JSON.parse(response)
+    end
+
+    # Handles Strings, Symbols, and Objects that respond to '.symbol', as well as Arrays containg these types
+    # Returns a string properly formatted for delivering arguments to the python script that handles that actual API connection
+    def prepare_arguments(arg)
+      if arg.class == String || arg.class == Symbol || arg.respond_to?(:symbol)
+        if arg.respond_to?(:symbol) then arg = arg.symbol end
+        return [@method, arg].join(" ")
+      elsif arg.class == Array
+        arg = arg.flatten.select { |a| a.class == String || a.class == Symbol || a.respond_to?(:symbol) }
+        arg = arg.map { |a| if a.respond_to?(:symbol) then a = a.symbol else a end }
+        return arg.unshift(@method).join(" ")
+      end
+    end
 
   end
 
+  class Summary
+    attr_accessor :cache
+    def namespace
+      :summary
+    end
+
+    def method
+      :summary_detail
+    end
+
+    def initialize
+      @cache = Redis::Namespace.new(:summary, redis: REDIS)
+      @method = "summary_detail"
+    end
+
+    def self.get(symbol)
+      summary = YF::Summary.new
+      summary.cache.get(symbol)
+    end
+
+    def self.set(symbol, data)
+      summary = YF::Summary.new
+      summary.cache.set(symbol, data)
+    end
+  end
+
+
+
+  # Gets each stonk, reads the value from the cache, outputs as a JSON Array
+  # This logic might be better implemented in the Controller
   def self.api_feed
     stonks = []
     get_stonks.each do |stonk|
@@ -18,22 +70,28 @@ module YF
   end
 
 
+  # Better implemented in Controller
   def self.get_stonks
     return Search.last.stonks.pluck(:symbol)
   end
 
+  # Functionality re-created
   def self.read_stonk_cache(stonk)
     JSON.parse(REDIS.get(stonk))
   end
 
   ########
 
+  # This belongs in an API class
+  # It will know how to talk to the API, and how to format the arguments to be good for it.
+  # Then the other classes can depend on its interface reliably.
   def self.get_stonk_data(arg)
     arg = clean_arguments(arg)
     output = `python lib/stonk_data.py #{arg}`
     return JSON.parse(output).to_json
   end
 
+  # This should be in the Summary (and other) classes, but it needs API access to function
   def self.update_stonk_cache
     get_stonks.each do |stonk|
       data = get_stonk_data(stonk)

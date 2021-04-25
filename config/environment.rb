@@ -4,6 +4,7 @@ Bundler.require(:default, ENV['RACK_ENV'])
 
 require 'active_record'
 require 'redis'
+require 'redis-namespace'
 require 'sinatra/base'
 require 'json'
 require './models/stonk.rb'

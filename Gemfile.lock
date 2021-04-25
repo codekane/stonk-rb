@@ -54,6 +54,8 @@ GEM
     redd (0.8.8)
       http (~> 2.2)
     redis (4.2.5)
+    redis-namespace (1.8.1)
+      redis (>= 3.0.4)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -104,6 +106,7 @@ DEPENDENCIES
   rake
   redd
   redis
+  redis-namespace
   rspec
   sinatra
   sinatra-activerecord

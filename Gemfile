@@ -14,6 +14,7 @@ gem 'json'
 gem 'sinatra'
 #gem 'sinatra-activerecord'
 gem 'redis'
+gem 'redis-namespace'
 gem 'rack'
 gem 'rack-cors', :require => 'rack/cors'
 
