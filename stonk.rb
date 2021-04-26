@@ -50,6 +50,7 @@ module YF
 
   end
 
+  
   # Only one who has the right keys for the API and Cache to get the Summary data
   # Call this class anywhere you need Summary data get/set
   class Summary
@@ -90,12 +91,26 @@ module YF
       summary = Summary.new
       response = summary.api.request(stonks)["response"]
       response.each do |r|
-        key = r.keys[0]
-        summary.cache.set(key, r[key])
+        if r == "No data found"
+          return
+        else
+          key = r.keys[0]
+          summary.cache.set(key, r[key])
+        end
       end
     end
 
   end
+
+  class Quotes < Summary
+    def namespace
+      :quote
+    end
+    def method
+      :quotes
+    end
+  end
+
 
   class Cache
     def initialize(namespace)
@@ -108,76 +123,6 @@ module YF
 
     def set(symbol, data)
       @redis.set(symbol, JSON.dump(data))
-    end
-  end
-
-
-
-  # Gets each stonk, reads the value from the cache, outputs as a JSON Array
-  # This logic might be better implemented in the Controller
-  def self.api_feed
-    stonks = []
-    get_stonks.each do |stonk|
-      stonks << read_stonk_cache(stonk)
-    end
-    response = stonks
-    return response
-  end
-
-
-  # Better implemented in Controller
-  def self.get_stonks
-    return Search.last.stonks.pluck(:symbol)
-  end
-
-  # Functionality re-created
-  def self.read_stonk_cache(stonk)
-    JSON.parse(REDIS.get(stonk))
-  end
-
-  ########
-
-  # This belongs in an API class
-  # It will know how to talk to the API, and how to format the arguments to be good for it.
-  # Then the other classes can depend on its interface reliably.
-  def self.get_stonk_data(arg)
-    arg = clean_arguments(arg)
-    output = `python lib/stonk_data.py #{arg}`
-    return JSON.parse(output).to_json
-  end
-
-  # This should be in the Summary (and other) classes, but it needs API access to function
-  def self.update_stonk_cache
-    get_stonks.each do |stonk|
-      data = get_stonk_data(stonk)
-      REDIS.set(stonk, data)
-    end
-  end
-
-
-  def self.clean_arguments(arg)
-    if arg.class == String
-      return arg
-    elsif arg.class == Stonk
-      return arg.symbol
-    elsif arg.class == Array
-      parsed = []
-      arg.each do |a|
-        if a.class == String
-          parsed << a
-        elsif a.class == Stonk
-          parsed << a.symbol
-        end
-      end
-      output = ""
-      parsed.each_with_index do |p, index|
-        if index == parsed.length - 1
-          output += p
-        else
-          output = output + p + " "
-        end
-      end
-      return output
     end
   end
 end
@@ -201,6 +146,14 @@ class APIController < Sinatra::Base
     return YF::Summary.fetch_cache(@stonks).to_json
   end
 
+  get '/api/quotes' do
+    content_type 'application/json'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    @stonks = Search.last.stonks
+    return YF::Quotes.fetch_cache(@stonks).to_json
+
+  end
+
 
   options "*" do
     response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
@@ -209,8 +162,5 @@ class APIController < Sinatra::Base
     200
   end
 
-  options '/api/stonks' do
-
-  end
 
 end

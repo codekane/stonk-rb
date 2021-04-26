@@ -14,6 +14,10 @@ use Rack::Cors do |config|
       :methods => [:get, :options],
       :headers => :any,
       :max_age => 0
+    allow.resource '/api/quotes',
+      :methods => [:get, :options],
+      :headers => :any,
+      :max_age => 0
   end
 
 end

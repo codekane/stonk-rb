@@ -1,4 +1,6 @@
+require 'spec_helper'
 require 'rack/test'
+require './stonk.rb'
 
 describe APIController do
   include Rack::Test::Methods
@@ -6,6 +8,14 @@ describe APIController do
   def app
     APIController.new
   end
+#
+#  describe "/api/summary" do
+#    it 'returns the correct headers to an option request' do
+#      get '/api/summary'
+#      binding.pry
+#
+#    end
+#  end
 
   # context :api do
   #   context :stonks do
