@@ -98,7 +98,8 @@ describe YF::Cache do
 
     it "should prefix the save value with summary" do
       @cache.set("PENIS", "VAGINA")
-      expect(REDIS.get("summary:PENIS")).to eq("VAGINA")
+      result = JSON.parse(REDIS.get("summary:PENIS"))
+      expect(result).to eq("VAGINA")
     end
 
   end
@@ -106,7 +107,9 @@ describe YF::Cache do
   describe ".get" do
     it "should successfully return a value being set by the same class" do
       @cache.set("PENIS", "VAGINA")
-      expect(@cache.get("PENIS")).to eq("VAGINA")
+      
+      result = @cache.get("PENIS")
+      expect(JSON.parse(result)).to eq("VAGINA")
     end
 
     it "should fail to return a value set with the base redis instance" do

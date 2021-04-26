@@ -71,13 +71,13 @@ module YF
     # This needs to accept arrays, etc.
     def self.fetch_cache(stonks)
       summary = Summary.new
-      response = {}
-      response[summary.namespace] = {}
+      response = []
       if symbolize(stonks)
         stonks = symbolize(stonks)
         stonks.each do |stonk|
-          data = JSON.parse(summary.cache.get(stonk))
-          response[summary.namespace][stonk] = data
+          data = {}
+          data[stonk] = JSON.parse(summary.cache.get(stonk))
+          response << data
         end
       end
       return response
