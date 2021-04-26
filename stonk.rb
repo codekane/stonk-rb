@@ -71,13 +71,13 @@ module YF
     # This needs to replenish the hash keys
     # This needs to accept arrays, etc.
     def self.fetch_cache(stonks)
-      summary = Summary.new
+      this = self.new
       response = []
       if symbolize(stonks)
         stonks = symbolize(stonks)
         stonks.each do |stonk|
           data = {}
-          data[stonk] = JSON.parse(summary.cache.get(stonk))
+          data[stonk] = JSON.parse(this.cache.get(stonk))
           response << data
         end
       end
@@ -88,14 +88,14 @@ module YF
     # put in place on the API... There is no such protection in play for the others.
     # Need to abstract that piece so it can be re-used
     def self.update_cache(stonks)
-      summary = Summary.new
-      response = summary.api.request(stonks)["response"]
+      this = self.new
+      response = this.api.request(stonks)["response"]
       response.each do |r|
         if r == "No data found"
           return
         else
           key = r.keys[0]
-          summary.cache.set(key, r[key])
+          this.cache.set(key, r[key])
         end
       end
     end

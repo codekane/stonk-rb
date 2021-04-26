@@ -32,7 +32,7 @@ if args['method'] == 'summary_detail':
         results.append(data)
     output = { "response": results }
     print(json.dumps(output))
-elif str.rstrip(args['method']) == 'quotes':
+if str.rstrip(args['method']) == 'quotes':
     results = []
     for arg in args["args"]:
         data = Ticker(arg).quotes
