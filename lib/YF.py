@@ -3,39 +3,28 @@ import json
 from yahooquery import Ticker
 
 
-def sort_arguments():
-    if len(sys.argv) > 2:
-        args = []
-        for index, arg in enumerate(sys.argv):
-            if index == 0:
-                pass
-            if index == 1:
-                method = arg
-            if index > 1:
-                args.append(arg)
-        return {"method": method, "args": args}
+class Request:
+    def __init__(self):
+        if len(sys.argv) > 2:
+            self.args = []
+            self.method = sys.argv[1]
+            x = range(2, len(sys.argv))
+            for i in x:
+                self.args.append(sys.argv[i])
+            self.ticker = Ticker(self.args)
+    def send(self):
+            self.response = getattr(self.ticker, self.method)
 
-args = sort_arguments()
+request = Request()
+request.send()
+print(json.dumps(request.response))
 
-#if args['method'] == 'summary_details':
-#    results = []
-#    tick = Ticker(args["args"])
-#    results.append(tick.summary_details)
-#    output = { "response": results }
-#    print(json.dumps(output))
 
-# Delivery a JSON Hash with "response" keyed to an array of results to the query
-if args['method'] == 'summary_detail':
-    results = []
-    for arg in args["args"]:
-        data = Ticker(arg).summary_detail
-        results.append(data)
-    output = { "response": results }
-    print(json.dumps(output))
-if str.rstrip(args['method']) == 'quotes':
-    results = []
-    for arg in args["args"]:
-        data = Ticker(arg).quotes
-        results.append(data)
-    output = { "response": results }
-    print(json.dumps(output))
+# module_methods = ['company_officers', 'earning_history', 'earnings', 'earnings_trend', 'esg_scores',
+#                   'financial_data', 'fund_bond_holdings', 'fund_bond_ratings', 'fund_equity_holdings', 
+#                   'fund_holding_info', 'fund_ownership', 'fund_performance', 'fund_profile', 'fund_sector_weightings',
+#                   'fund_top_holdings', 'grading_history', 'industry_trend', 'insider_holdings', 'insider_transactions', 
+#                   'institution_ownership', 'key_stats', 'major_holders', 'page_views', 'price', 'quote_type',
+#                   'recommendation_trend', 'sec_filings', 'share_purchase_activity', 'summary_detail', 'summary_profile',
+#                   'all_modules', 'asset_profile', 'calendar_events']
+# 

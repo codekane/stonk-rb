@@ -8,13 +8,15 @@
 job_type :asdf_rake, %Q{. $HOME/.asdf/asdf.sh; . $HOME/.asdf/completions/asdf.bash;\
                         cd :path && direnv exec . rake :task --silent :output}
 
+set :environment, "development"
 set :output, "/Users/Scald/Projects/stonk/log.md"
+env :PATH, ENV['PATH']
 every 1.hour do
-  asdf_rake "stonk:handle"
+  asdf_rake "get_data"
 end
 
 every 5.minutes do
-  asdf_rake "stonk:get_data"
+  asdf_rake "parse_stonks"
 end
 #
 # every 2.hours do

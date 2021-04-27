@@ -68,21 +68,15 @@ describe YF::API, '.request' do
 
   it "returns parsed JSON" do
     test = @api.request(["GOOG", "GME"])
-
     expect(test.class).to be(Hash)
   end
 
-  it "responds to the key 'response' and returns an array" do
-    test = @api.request(["GOOG", "GME"])
-
-    expect(test["response"].class).to be(Array)
-  end
 
   it "contains one element for every arguments passed in" do
     symbols =["GOOG", "GME", "TSLA", "RGBP", "BIDU", "EYES", "FBRX", "ROOT", "OTRK", "HJLI", "PUBM", "ASO", "GOGO", "BLNK", "SMOON"]
     test = @api.request(symbols)
 
-    expect(test["response"].count).to eq(symbols.count)
+    expect(test.count).to eq(symbols.count)
   end
 end
 
@@ -107,7 +101,7 @@ describe YF::Cache do
   describe ".get" do
     it "should successfully return a value being set by the same class" do
       @cache.set("PENIS", "VAGINA")
-      
+
       result = @cache.get("PENIS")
       expect(JSON.parse(result)).to eq("VAGINA")
     end
@@ -119,37 +113,10 @@ describe YF::Cache do
 
   end
 
-  describe ".update" do
-    it "updates the passed keys value with new results from the YF API"
-  end
-
-  describe ".update_all" do
-    it "updates all keys with new results from the YF API"
-
-  end
 end
 
-describe YF::Summary, 'Instance Methods' do
-  before(:each) do
-    @test = YF::Summary.new
-  end
-  describe 'instance methods' do
-    it 'should respond to namespace' do
-      expect(@test.namespace).to eq(:summary)
-    end
-    it "should respond to method" do
-      expect(@test.method).to eq(:summary_detail)
-    end
-    it "should contain a cache object" do
-      expect(@test.cache.class).to be(YF::Cache)
-    end
-    it "should contain an api object" do
-      expect(@test.api.class).to be(YF::API)
-    end
-  end
-end
 
-describe YF::Summary, 'Singleton Methods' do
+describe YF::Summary do
   before do
     stonks = ["GME", "RGBP", "BIDU", "EYES", "FBRX", "ROOT", "OTRK", "HJLI", "PUBM", "ASO", "GOGO", "BLNK"]
     stonks.each do |stonk| Stonk.create(symbol: stonk).save end
@@ -157,14 +124,19 @@ describe YF::Summary, 'Singleton Methods' do
     @test = YF::Summary
   end
 
+  describe "update" do
+    it "is saving to Redis" do
+      test = YF::Cache.new("summary")
+      test.set("GME", "Penis")
+      YF::Summary.update("GME")
 
-  describe ".fetch_cache" do
-    it "accepts a string as the argument"
-    it "accepts an array as the argument"
-    it "accepts a symbol as the argument"
-    it "accepts an array as the argument"
-    it "accepts an ActiveRecord Collection as the argument"
+      expect(YF::Summary.fetch("GME")).not_to eq("Penis")
+    end
+
+
+    describe ".fetch" do
+
+    end
 
   end
-
 end

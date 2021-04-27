@@ -9,8 +9,6 @@ require 'sinatra/base'
 require 'json'
 require './models/stonk.rb'
 require 'sinatra/activerecord'
-#require 'standalone_migrations'
-#require 'reddit_search'
 
 # Set up Database
 def db_configuration

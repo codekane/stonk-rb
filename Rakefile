@@ -1,23 +1,27 @@
 $: << "."
+require 'pry'
 require_relative './config/environment.rb'
 #StandaloneMigrations::Tasks.load_tasks
-#require 'reddit_search'
-#require './stonk.rb'
+require './app/reddit_search'
 require 'sinatra/activerecord/rake'
+require './stonk.rb'
+
 
 namespace :db do
   task :load_config do
-    require './stonk.rb'
   end
 end
 
 namespace :stonk do
   task :handle do
-    parse_stonks
+    Search.connection
+    stonks = Search.last.stonks
+    YF::Quotes.update(stonks)
+    YF::Summary.update(stonks)
   end
 
   task :get_data do
-    YF.update_stonk_cache
+    parse_stonks
   end
 
 
