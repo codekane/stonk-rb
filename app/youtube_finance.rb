@@ -48,22 +48,24 @@ module YF
     end
   end
 
-
-  class Summary
+  class Endpoint
+    # This class cannot be instantiated on its own.
+    # Inherit from it, defining a namespace, and a method function to utilize
     extend YF::Helpers
     attr_accessor :cache, :api
     def initialize
-      @cache = YF::Cache.new(namespace)
-      @api   = YF::API.new(method)
+      @cache  = YF::Cache.new(namespace)
+      @api    = YF::API.new(method)
     end
     def namespace
-      :summary
+      # This is a symbol corresponding to the prefix used for the namespaced cache
     end
     def method
-      :summary_detail
+      # This is a symbol corresponding to the actual method call used by YahooQuery
     end
 
     def self.fetch(stonks)
+      # Fetches the current data corresponding to each passed stonk from the API, and returns it
       this = self.new
       response = []
       if symbolize(stonks)
@@ -78,6 +80,7 @@ module YF
     end
 
     def self.update(stonks)
+      # Makes an API Call for the passed stonks, and updates the cache data to correspond
       this = self.new
       response = this.api.request(stonks)
       if response.count == 1
@@ -87,9 +90,62 @@ module YF
       end
     end
 
+    def self.collect(stonks, frequency: 1.minute, duration: 3.minutes,
+                     output_dir: "YF_Analysis", filename: )
+      # Initially, working with JSON, all that I need to do is to figure out the timestamps
+      # Write a new JSON file, and then add a new key to it with that timestamp, and the result
+
+      if stonks == :all
+        stonks = Stonk.all
+      end
+
+      this = self.new
+
+      # This controls the while loop, and also provides the seed for the output directory
+      start_time = Time.now
+      finish_time = start_time + duration
+      next_time = start_time + frequency
+
+      actual_dir = "#{output_dir}/#{this.method.to_s}"
+      filename = "#{filename}.json"
+
+
+      FileUtils.mkdir_p actual_dir
+
+      total_response = {}
+
+      while Time.now < finish_time
+        this_time = Time.now
+        next_time += frequency
+
+        # It's making this call to get access to the API and the method
+        response = this.api.request(stonks)
+
+        this_response = {}
+        response.keys.map { |k| this_response[k] = response[k] }
+        total_response[this_time] = this_response
+
+        sleep 0.1.seconds until Time.now >= next_time
+      end
+
+      file = File.open("#{actual_dir}/#{filename}", "w+")
+      file.write(JSON.dump(total_response))
+      file.close
+    end
+
   end
 
-  class Quotes < Summary
+
+  class Summary < YF::Endpoint
+    def namespace
+      :summary
+    end
+    def method
+      :summary_detail
+    end
+  end
+
+  class Quotes < YF::Endpoint
     def namespace
       :quote
     end

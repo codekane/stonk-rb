@@ -12,7 +12,7 @@ set :environment, "development"
 set :output, "/Users/Scald/Projects/stonk/log.md"
 env :PATH, ENV['PATH']
 every 1.hour do
-  asdf_rake "get_data"
+  asdf_rake "stonk:get_data"
 end
 
 every 5.minutes do
