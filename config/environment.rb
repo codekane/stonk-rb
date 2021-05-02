@@ -9,6 +9,8 @@ require 'sinatra/base'
 require 'json'
 require './models/stonk.rb'
 require 'sinatra/activerecord'
+require './app/reddit_search'
+require './app/youtube_finance'
 
 # Set up Database
 def db_configuration
