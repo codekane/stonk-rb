@@ -34,6 +34,4 @@ namespace :stonk do
     parse_stonks
   end
 
-
-
 end
