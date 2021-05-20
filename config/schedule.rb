@@ -16,7 +16,7 @@ every 1.hour do
 end
 
 every 5.minutes do
-  asdf_rake "stonk:parse_stonks"
+  asdf_rake "stonk:handle"
 end
 #
 # every 2.hours do
