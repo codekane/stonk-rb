@@ -1,15 +1,17 @@
 require 'redd'
 
-
-def parse_stonks
-  puts "Gonna check Reddit for more stonks. Gimme a minute."
-  search = RedditSearch.new('wallstbets').run_search
-  puts "Got 'em. Hold up, Hold up...."
-  handler = SearchHandler.new(search)
-  handler.populateStonks
-  handler.populateSearch
-  puts "Search has been handled man. No problemo."
+module Reddit
+  def self.parse_stonks
+    puts "Gonna check Reddit for more stonks. Gimme a minute."
+    search = RedditSearch.new('wallstbets').run_search
+    puts "Got 'em. Hold up, Hold up...."
+    handler = SearchHandler.new(search)
+    handler.populateStonks
+    handler.populateSearch
+    puts "Search has been handled man. No problemo."
+  end
 end
+
 
 
 # Uses Reddit API to search for stock symbols.
@@ -113,5 +115,4 @@ class SearchHandler
       search.save!
     end
   end
-
 end

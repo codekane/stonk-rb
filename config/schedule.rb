@@ -11,10 +11,14 @@ job_type :asdf_rake, %Q{. $HOME/.asdf/asdf.sh; . $HOME/.asdf/completions/asdf.ba
 set :environment, "development"
 set :output, "/Users/Scald/Projects/stonk/log.md"
 env :PATH, ENV['PATH']
+
+# This part seems to work.
 every 1.hour do
   asdf_rake "stonk:get_data"
 end
 
+# This part I don't know that it works, honestly.
+# TODO: Does this even work?
 every 5.minutes do
   asdf_rake "stonk:handle"
 end

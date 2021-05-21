@@ -134,9 +134,14 @@ describe YF::Summary do
     end
 
 
-    describe ".fetch" do
+    it "caches API response key data" do
+      test = YF::Cache.new("GME")
+      test.set("open", "penis")
+      YF::Summary.update("GME")
 
+      expect(test.get("open")).not_to eq("penis")
     end
+
 
   end
 end

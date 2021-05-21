@@ -25,17 +25,13 @@ end
 
 namespace :stonk do
   task :handle do
-    Search.connection
-    stonks = Search.last.stonks
-    # TODO: The below needs to be partitioned out.
-    # The Rakefile shold not be doing this.
-    # It's way too entangled, and I've great difficulty making changes here.
-    YF::Quotes.update(stonks)
-    YF::Summary.update(stonks)
+    YF::Automation.update_data
   end
 
   task :get_data do
-    parse_stonks
+    # TODO:
+    # This should really be inside of a module. It's polluting the global namespace.
+    Reddit.parse_stonks
   end
 
 end

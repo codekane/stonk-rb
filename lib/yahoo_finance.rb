@@ -15,7 +15,16 @@ module YF
     end
   end
 
+  module Automation
+    def self.update_data
+      Search.connection
+      stonks = Search.last.stonks
 
+      YF::Quotes.update(stonks)
+      YF::Summary.update(stonks)
+      # The return value on this sucks, but at least the logic is outside of the Rakefile
+    end
+  end
 
 
   class API
@@ -44,12 +53,16 @@ module YF
       @redis = Redis::Namespace.new(namespace, redis: REDIS)
     end
 
-    def get(symbol)
-      @redis.get(symbol)
+    def get(key)
+      @redis.get(key)
     end
 
-    def set(symbol, data)
-      @redis.set(symbol, JSON.dump(data))
+    def set(key, data)
+      @redis.set(key, JSON.dump(data))
+    end
+
+    def keys
+      @redis.keys
     end
   end
 
@@ -85,7 +98,7 @@ module YF
     end
 
     def self.update(stonks)
-      # Makes an API Call for the passed stonks, and updates the cache data to correspond
+      # TODO: Remove once dependancy has been removed.
       this = self.new
       response = this.api.request(stonks)
       if response.count == 1
@@ -93,6 +106,18 @@ module YF
       elsif response.count > 1
         response.keys.map { |k| this.cache.set(k, response[k]) }
       end
+      # New COde
+      # This creates a new cache, using the stonk as the namespace (instead of the method)
+      # It then creates a key for every value in the response.
+      # This will operate in parallel with the present functionality (above)
+      # This can be tested by seeing if I can access data in the cache using the stonk prefix
+      response.keys.each do |stonk|
+        cache = Cache.new(stonk)
+        for key in response[stonk].keys
+          cache.set(key, response[stonk][key])
+        end
+      end
+      # The above bit works, just FYI...
     end
 
     # This, and the analyze function should both be in their own class...
@@ -175,10 +200,6 @@ module YF
       end
 
     end
-
-  end
-
-  class Analysis
 
   end
 
