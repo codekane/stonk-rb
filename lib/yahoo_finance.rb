@@ -15,6 +15,35 @@ module YF
     end
   end
 
+
+
+  # Returns data in a way that is suited for the API response
+  class Response
+    extend YF::Helpers
+    def self.fetch(symbols)
+      response = {}
+      if symbolize(symbols)
+        symbols = symbolize(symbols)
+
+        symbols.each do |symbol|
+          cache = YF::Cache.new(symbol)
+          keys = cache.keys
+          data = {}
+          keys.each do |key|
+            data[key] = JSON.parse(cache.get(key))
+          end
+
+          response[symbol.to_s] = data
+        end
+      end
+      return response
+    end
+
+  end
+
+
+
+
   module Automation
     def self.update_data
       Search.connection

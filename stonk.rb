@@ -19,7 +19,7 @@ class APIController < Sinatra::Base
     content_type 'application/json'
     response.headers['Access-Control-Allow-Origin'] = '*'
     @stonks = Search.last.stonks
-    return YF::Summary.fetch(@stonks).to_json
+    return YF::Response.fetch(@stonks).to_json
   end
 
   get '/api/quotes' do
