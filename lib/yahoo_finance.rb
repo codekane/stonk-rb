@@ -27,13 +27,13 @@ module YF
 
         symbols.each do |symbol|
           cache = YF::Cache.new(symbol)
-          keys = cache.keys
-          data = {}
-          keys.each do |key|
-            data[key] = JSON.parse(cache.get(key))
+          if !cache.keys.empty?
+            data = {}
+            cache.keys.each do |key|
+              data[key] = JSON.parse(cache.get(key))
+            end
+            response[symbol.to_s] = data
           end
-
-          response[symbol.to_s] = data
         end
       end
       return response
@@ -119,8 +119,10 @@ module YF
         stonks = symbolize(stonks)
         stonks.each do |stonk|
           data = {}
-          data[stonk] = JSON.parse(this.cache.get(stonk))
-          response << data
+          if (this.cache.get(stonk))
+            data[stonk] = JSON.parse(this.cache.get(stonk))
+            response << data
+          end
         end
       end
       return response
