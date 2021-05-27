@@ -31,25 +31,24 @@ class RedditSearch
     @counter = StonkCounter.new
   end
 
+  # I could improve this to take the top 500, rather than 100.
+  # Get even more data.
+  def hot_stocks
+    handler = @session.subreddit(@subreddit)
+    results = handler.hot(limit: 100)
 
-  def subreddit
-    @session.subreddit(@subreddit)
-  end
-
-  def rising
-    subreddit.rising.each do |rising|
-      rising.inspect.scan(@regex) { |match| matcher(match) }
-      if rising.comments.count > 0
-        rising.comments.each do |comment|
-          comment.inspect.scan(@regex) { |match|  matcher(match) }
+    results.each do |feed|
+      feed.inspect.scan(@regex) { |match| matcher(match) }
+      if feed.comments.count > 0
+        feed.comments(limit: 100).each do |comment|
+          comment.inspect.scan(@regex) { |match| matcher(match) }
         end
       end
     end
-
   end
 
   def run_search
-    rising
+    hot_stocks
 
     return results
   end
@@ -69,6 +68,7 @@ class RedditSearch
   end
 end
 
+# This seems kind of hack-jawed refactored. Oh well.
 class StonkCounter
   attr_accessor :stocks
   def initialize
@@ -92,6 +92,7 @@ class SearchHandler
   end
 
 
+  # Likewise important. WOnder if this could go somewhere else though. Like as a model method.
   def populateStonks
     @results.keys.each do |stock|
       if Stonk.where(symbol: stock).empty? === true
@@ -103,7 +104,7 @@ class SearchHandler
     end
   end
 
-  # The tests for this one would be a lot more useful, I realize.
+  # This seems unimportant, yet it's used by the program. Important.
   def populateSearch
     Search.transaction do
       search = Search.new

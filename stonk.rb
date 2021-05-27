@@ -18,8 +18,17 @@ class APIController < Sinatra::Base
   get '/api/summary' do
     content_type 'application/json'
     response.headers['Access-Control-Allow-Origin'] = '*'
-    @stonks = Search.last.stonks
-    return YF::Response.fetch(@stonks).to_json
+    search = Search.last
+    @stonks = search.stonks
+
+    response = YF::Response.fetch(@stonks)
+    @stonks.each do |stonk|
+      if response[stonk.symbol]
+        response[stonk.symbol]["count"] = stonk.count(search.id)
+      end
+    end
+
+    return response.to_json
   end
 
   get '/api/quotes' do
