@@ -25,6 +25,7 @@ end
 
 namespace :stonk do
   task :handle do
+    puts "Beginning YF Cache Update"
     YF::Automation.update_data
   end
 

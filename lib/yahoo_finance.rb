@@ -27,7 +27,7 @@ module YF
 
         symbols.each do |symbol|
           cache = YF::Cache.new(symbol)
-          if !cache.keys.empty?
+          if !cache.keys.empty? && cache.keys.include?("regularMarketPrice")
             data = {}
             cache.keys.each do |key|
               data[key] = JSON.parse(cache.get(key))
@@ -132,20 +132,13 @@ module YF
       # TODO: Remove once dependancy has been removed.
       this = self.new
       response = this.api.request(stonks)
-      if response.count == 1
-        this.cache.set(response.keys[0], response)
-      elsif response.count > 1
-        response.keys.map { |k| this.cache.set(k, response[k]) }
-      end
-      # New COde
-      # This creates a new cache, using the stonk as the namespace (instead of the method)
-      # It then creates a key for every value in the response.
-      # This will operate in parallel with the present functionality (above)
-      # This can be tested by seeing if I can access data in the cache using the stonk prefix
+
       response.keys.each do |stonk|
         cache = Cache.new(stonk)
-        for key in response[stonk].keys
-          cache.set(key, response[stonk][key])
+        if response[stonk].methods.include? :keys
+          for key in response[stonk].keys
+            cache.set(key, response[stonk][key])
+          end
         end
       end
       # The above bit works, just FYI...

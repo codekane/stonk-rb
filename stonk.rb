@@ -3,7 +3,6 @@ require 'pry'
 
 
 
-
 class APIController < Sinatra::Base
   register Sinatra::ActiveRecordExtension
   before do
